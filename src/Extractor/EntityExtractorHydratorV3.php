@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * @see       https://github.com/laminas-api-tools/api-tools-hal for the canonical source repository
  * @copyright https://github.com/laminas-api-tools/api-tools-hal/blob/master/COPYRIGHT.md
@@ -8,6 +9,7 @@
 
 namespace Laminas\ApiTools\Hal\Extractor;
 
+use ArrayObject;
 use JsonSerializable;
 use Laminas\ApiTools\Hal\EntityHydratorManager;
 use Laminas\Hydrator\ExtractionInterface;
@@ -39,13 +41,13 @@ class EntityExtractorHydratorV3 implements ExtractionInterface
     public function __construct(EntityHydratorManager $entityHydratorManager)
     {
         $this->entityHydratorManager = $entityHydratorManager;
-        $this->serializedEntities    = new SplObjectStorage();
+        $this->serializedEntities = new SplObjectStorage();
     }
 
     /**
      * @inheritDoc
      */
-    public function extract(object $entity) : array
+    public function extract($entity): array
     {
         if (isset($this->serializedEntities[$entity])) {
             return $this->serializedEntities[$entity];
@@ -56,7 +58,7 @@ class EntityExtractorHydratorV3 implements ExtractionInterface
         return $this->serializedEntities[$entity];
     }
 
-    private function extractEntity(object $entity) : array
+    private function extractEntity($entity): array
     {
         $hydrator = $this->entityHydratorManager->getHydratorForEntity($entity);
 
@@ -66,6 +68,10 @@ class EntityExtractorHydratorV3 implements ExtractionInterface
 
         if ($entity instanceof JsonSerializable) {
             return $entity->jsonSerialize();
+        }
+
+        if ($entity instanceof ArrayObject) {
+            return $entity->getArrayCopy();
         }
 
         return get_object_vars($entity);
